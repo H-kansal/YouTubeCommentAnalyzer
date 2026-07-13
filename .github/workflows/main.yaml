@@ -94,6 +94,16 @@ jobs:
           -e YOUTUBE="${{ secrets.YOUTUBE }}" \
           ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
       
+      - name: Show Container Status
+        if: always()
+        run: |
+          docker ps -a
+
+      - name: Show Container Logs
+        if: always()
+        run: |
+          docker logs youtube-Analyzer || true
+
       - name: Cleanup Old Images
         run: docker system prune -f
 
