@@ -1,0 +1,27 @@
+Metadata-Version: 2.4
+Name: MINI-PROJECT-2
+Version: 0.0.1
+Summary: A small package for dvc pipeline demo
+Author: Himanshu
+License: MIT
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: seaborn
+Requires-Dist: scikit-learn
+Requires-Dist: pymongo[srv]
+Requires-Dist: pymongo
+Requires-Dist: dotenv
+Requires-Dist: nltk
+Requires-Dist: google-api-python-client
+Requires-Dist: streamlit
+Requires-Dist: plotly
+Requires-Dist: wordcloud
+Requires-Dist: uvicorn
+Requires-Dist: pydantic
+Requires-Dist: fastapi
+Requires-Dist: tensorflow
+Dynamic: author
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary

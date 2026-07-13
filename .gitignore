@@ -1,0 +1,10 @@
+.env
+__pycache__/
+venv/
+*.pyc
+.DS_Store
+chroma_db/
+logs
+frontend
+youtube_comments_cleaned.csv
+artifact/ingestion

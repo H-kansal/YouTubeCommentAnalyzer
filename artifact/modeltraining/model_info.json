@@ -1,0 +1,1 @@
+{"model_type": "dl", "model_name": "LSTM", "model_file_path": "artifact/modeltraining/dl_model.h5", "preProcessor_file_path": "artifact/transformation/tokenizer.pkl", "maxLen": 1781}
