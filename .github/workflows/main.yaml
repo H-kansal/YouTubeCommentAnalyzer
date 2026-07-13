@@ -1,0 +1,102 @@
+name: YouTube Comment Analyzer CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  integration:
+    name: Continuous Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Syntax Check
+        run: |
+          python -m py_compile $(git ls-files '*.py')
+
+  build-and-push-ecr-image:
+    name: Build & Push ECR
+    needs: integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  deployment:
+    name: Deploy to EC2
+    needs: build-and-push-ecr-image
+    runs-on: self-hosted
+
+    steps:
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Pull Latest Image
+        run: |
+          docker pull ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+
+      - name: Stop and Remove Old Containers
+        run: |
+          docker stop youtube-Analyzer || true
+          docker rm youtube-Analyzer || true
+
+      # FastAPI Container
+      - name: Run FastAPI Container
+        run: |
+          docker run -d \
+          --restart always \
+          --name youtube-Analyzer \
+          -p 80:8000 \
+          -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+          -e MONGO_DB="${{ secrets.MONGO_DB }}" \
+          -e YOUTUBE="${{ secrets.YOUTUBE }}" \
+          ${{ secrets.AWS_ECR_LOGIN_URI }}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+      
+      - name: Cleanup Old Images
+        run: docker system prune -f
+
+      - name: Verify Containers
+        run: |
+          docker ps

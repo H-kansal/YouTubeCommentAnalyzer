@@ -8,7 +8,6 @@ pymongo
 dotenv
 nltk
 google-api-python-client
-streamlit
 plotly
 wordcloud
 uvicorn
