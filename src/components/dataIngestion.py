@@ -2,8 +2,6 @@ from src.entity.config import DataIngestionConfig
 from src.logger import logging
 from src.exception import youTubeAnalysisException
 from dotenv import load_dotenv
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from sklearn.model_selection import train_test_split
 from src.entity.artifact import DataIngestionArtifact
 import re
@@ -15,8 +13,8 @@ import pymongo
 load_dotenv()
 
 
-lemmatizer=WordNetLemmatizer()
-stopwords=set(stopwords.words("english"))
+# lemmatizer=WordNetLemmatizer()
+# stopwords=set(stopwords.words("english"))
 
 class DataIngestion:
     def __init__(self):
