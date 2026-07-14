@@ -106,7 +106,7 @@ jobs:
 
       - name: Cleanup Old Images
         run: docker system prune -f
-
+  
       - name: Verify Containers
         run: |
           docker ps
